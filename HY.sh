@@ -10,8 +10,9 @@ while true; do
     echo -e "\033[96m██████╔╝███████╗╚██████╗╚██████╔╝   ██║   ███████║"
     echo -e "\033[96m╚═════╝ ╚══════╝ ╚═════╝ ╚═════╝    ╚═╝   ╚══════╝"
     echo -e "\033[0m"
-    echo "HY一键脚本工具 v0.2（支持Ubuntu，Debian，Centos系统）"
+    echo "HY一键脚本工具 v0.3（支持Ubuntu，Debian，Centos系统）"
     echo "GitHub项目地址：https://github.com/d24f1/HY-shell-script"
+    echo "TG官方交流群：https://t.me/hosting_global"   
     echo "------------------------"
     echo -e "\033[32m1. 系统信息查询"
     echo "2. 系统更新"
@@ -22,6 +23,7 @@ while true; do
     echo "7. Docker管理 ▶"
     echo "8. 一键搭建幻兽帕鲁服务端管理 ▶"
     echo "9. 甲骨文云脚本合集 ▶"
+    echo "10. Linux系统重装 ▶"
     echo "------------------------"
     echo "0. 退出脚本"
     echo "------------------------"
@@ -671,7 +673,7 @@ clear
                 clear
             done
             ;;
-
+  
         8)
             while true; do
                 echo " ▼ "
@@ -835,6 +837,133 @@ clear
             done
             ;;
 
+        10)
+            while true; do
+                echo " ▼ "
+                echo "Linux系统重装"
+                echo "------------------------"
+                echo "1. KVM价架构机器重装"
+                echo "2. OpenVZ/LXC架构机器重装"
+                echo "------------------------"
+                echo "0. 返回主菜单"
+                echo "------------------------"
+                read -p "请输入你的选择: " sub_choice
+
+                case $sub_choice in
+                    1)
+
+                while true; do
+                echo " ▼ "
+                echo "KVM价架构机器重装"
+                echo "------------------------"
+                echo "1. 安装Debian 12"
+                echo "2. 安装CentOS 9 stream"
+                echo "3. 安装AlmaLinux 9"
+                echo "4. 安装RockyLinux 9"
+                echo "5. 安装Fedora 39"
+                echo "6. Ubuntu 22.04"
+                echo "------------------------"
+                echo "0. 返回主菜单"
+                echo "------------------------"
+                read -p "请输入你的选择: " sub_choice
+
+                case $sub_choice in
+                    1)
+                        clear
+                        wget --no-check-certificate -qO InstallNET.sh 'https://raw.githubusercontent.com/leitbogioro/Tools/master/Linux_reinstall/InstallNET.sh' && chmod a+x InstallNET.sh
+                        bash InstallNET.sh -debian
+                        reboot
+                        ;;
+                    2)
+                        clear
+                        wget --no-check-certificate -qO InstallNET.sh 'https://raw.githubusercontent.com/leitbogioro/Tools/master/Linux_reinstall/InstallNET.sh' && chmod a+x InstallNET.sh
+                        bash InstallNET.sh -centos
+                        reboot
+                        ;;
+                    3)
+                        clear
+                        wget --no-check-certificate -qO InstallNET.sh 'https://raw.githubusercontent.com/leitbogioro/Tools/master/Linux_reinstall/InstallNET.sh' && chmod a+x InstallNET.sh
+                        bash InstallNET.sh -almalinux
+                        reboot
+                        ;;
+                    4)
+                        clear
+                        wget --no-check-certificate -qO InstallNET.sh 'https://raw.githubusercontent.com/leitbogioro/Tools/master/Linux_reinstall/InstallNET.sh' && chmod a+x InstallNET.sh
+                        bash InstallNET.sh -rockylinux
+                        reboot
+                        ;;
+                    5)
+                        clear
+                        wget --no-check-certificate -qO InstallNET.sh 'https://raw.githubusercontent.com/leitbogioro/Tools/master/Linux_reinstall/InstallNET.sh' && chmod a+x InstallNET.sh
+                        bash InstallNET.sh -fedora
+                        reboot
+                        ;;
+                    6)
+                        clear
+                        wget --no-check-certificate -qO InstallNET.sh 'https://raw.githubusercontent.com/leitbogioro/Tools/master/Linux_reinstall/InstallNET.sh' && chmod a+x InstallNET.sh
+                        bash InstallNET.sh -ubuntu
+                        reboot
+                        ;;
+                
+                      0)
+                          break  # 跳出循环，退出菜单
+                          ;;
+
+                      *)
+                          break  # 跳出循环，退出菜单
+                          ;;
+                  esac
+              done
+              ;;
+                    2)
+
+                while true; do
+                echo " ▼ "
+                echo "OpenVZ/LXC架构机器重装"
+                echo "------------------------"
+                echo "1. 硬盘小于1G重装系统"
+                echo "2. 硬盘大于1G重装系统"
+                echo "------------------------"
+                echo "0. 返回主菜单"
+                echo "------------------------"
+                read -p "请输入你的选择: " sub_choice
+
+                case $sub_choice in
+                    1)
+                        clear
+                        wget -qO OsMutation.sh https://raw.githubusercontent.com/LloydAsp/OsMutation/main/OsMutation.sh && chmod u+x OsMutation.sh && ./OsMutation.sh
+                        ;;
+                    2)
+                        clear
+                        wget -qO OsMutation.sh https://raw.githubusercontent.com/LloydAsp/OsMutation/main/OsMutationTight.sh && chmod u+x OsMutation.sh && ./OsMutation.sh
+                        ;;
+
+                      0)
+                          break  # 跳出循环，退出菜单
+                          ;;
+
+                      *)
+                          break  # 跳出循环，退出菜单
+                          ;;
+                  esac
+              done
+              ;;
+
+                    0)
+                        break
+                        ;;
+                    *)
+                        echo "无效的输入!"
+                        ;;
+                esac
+                echo -e "\033[0;32m操作完成\033[0m"
+                echo "按任意键继续..."
+                read -n 1 -s -r -p ""
+                echo ""
+                clear
+            done
+            ;;
+            
         0)
             clear
             echo "感谢您使用我们的脚本。再见!"

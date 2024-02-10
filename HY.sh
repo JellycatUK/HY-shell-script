@@ -10,10 +10,11 @@ while true; do
     echo -e "\033[96m██████╔╝███████╗╚██████╗╚██████╔╝   ██║   ███████║"
     echo -e "\033[96m╚═════╝ ╚══════╝ ╚═════╝ ╚═════╝    ╚═╝   ╚══════╝"
     echo -e "\033[0m"
-    echo "HY一键脚本工具 v0.3（支持Ubuntu，Debian，Centos系统）"
-    echo "GitHub项目地址：https://github.com/d24f1/HY-shell-script"
-    echo "TG官方交流群：https://t.me/hosting_global"   
-    echo "------------------------"
+    echo -e "\033[1mHY一键脚本工具 v0.4\033[0m"
+    echo -e "（支持Ubuntu，Debian，Centos系统）\n"
+    echo -e "\033[4mGitHub项目地址：\033[0m\033[96mhttps://github.com/d24f1/HY-shell-script\033[0m"
+    echo -e "\033[4mTG官方交流群：\033[0m\033[96mhttps://t.me/hosting_global\033[0m\n"
+    echo -e "\033[1m------------------------\033[0m"
     echo -e "\033[32m1. 系统信息查询"
     echo "2. 系统更新"
     echo "3. 系统清理"
@@ -24,35 +25,32 @@ while true; do
     echo "8. 一键搭建幻兽帕鲁服务端管理 ▶"
     echo "9. 甲骨文云脚本合集 ▶"
     echo "10. Linux系统重装 ▶"
-    echo "------------------------"
+    echo -e "\033[1m------------------------\033[0m"
     echo "0. 退出脚本"
-    echo "------------------------"
-    read -p "请输入你的选择: " choice
+    echo -e "\033[1m------------------------\033[0m\n"
+    read -p "请输入你的选择: " choice  
 
-
-case $choice in
+    case $choice in
   1)
-    clear
-# 获取IPv4和IPv6地址
-ip_address() {
-    ipv4_address=$(curl -s ipinfo.io/ip)
-    ipv6_address=$(curl -s ipinfo.io/ip6)
+clear
+
+# 函数: 获取IPv4地址
+get_ipv4_address() {
+    ipv4_address=$(curl -s https://ipinfo.io/ip)
 }
 
-# 获取CPU信息
-get_cpu_info() {
-    if [ "$(uname -m)" == "x86_64" ]; then
-        cpu_info=$(grep 'model name' /proc/cpuinfo | uniq | sed -e 's/model name[[:space:]]*: //')
+# 函数: 获取IPv6地址
+get_ipv6_address() {
+    ipv6_address=$(curl -s https://ifconfig.co/)
+}
+
+# 函数: 获取系统信息
+get_system_info() {
+    # 尝试使用 lsb_release 获取系统信息
+    if command -v lsb_release >/dev/null 2>&1; then
+        os_info=$(lsb_release -ds 2>/dev/null)
     else
-        cpu_info=$(lscpu | grep 'Model name' | awk -F': ' '{print $2}' | sed 's/^[ \t]*//')
-    fi
-}
-
-# 获取操作系统信息
-get_os_info() {
-    os_info=$(lsb_release -ds 2>/dev/null)
-
-    if [ -z "$os_info" ]; then
+        # 如果 lsb_release 命令失败，则尝试其他方法
         if [ -f "/etc/os-release" ]; then
             os_info=$(source /etc/os-release && echo "$PRETTY_NAME")
         elif [ -f "/etc/debian_version" ]; then
@@ -60,38 +58,91 @@ get_os_info() {
         elif [ -f "/etc/redhat-release" ]; then
             os_info=$(cat /etc/redhat-release)
         else
-            os_info="未知"
+            os_info="Unknown"
         fi
     fi
 }
 
-# 主脚本
-clear
+# 函数: 获取CPU型号
+get_cpu_model() {
+    cpu_info=$(cat /proc/cpuinfo | grep "model name" | uniq | awk -F': ' '{print $2}' | sed 's/^[ \t]*//')
+    if [ -z "$cpu_info" ]; then
+        cpu_info="Unknown"
+    fi
+}
 
-ip_address
-get_cpu_info
-get_os_info
+# 函数: 获取CPU占用率
+get_cpu_usage() {
+    if [ -f /proc/stat ]; then
+        cpu_info=(`cat /proc/stat | grep '^cpu '`)
+        total_cpu_usage=0
+        for (( i=1; i<${#cpu_info[@]}; i++ )); do
+            total_cpu_usage=$((total_cpu_usage + ${cpu_info[$i]}))
+        done
+        idle_cpu_usage=${cpu_info[4]}
+        cpu_usage_percent=$((100 - ((100 * idle_cpu_usage) / total_cpu_usage)))
+    else
+        cpu_usage_percent="Unknown"
+    fi
+}
 
+# 获取IPv4地址
+get_ipv4_address
+
+# 获取IPv6地址
+get_ipv6_address
+
+# 获取系统信息
+get_system_info
+
+# 获取CPU型号
+get_cpu_model
+
+# 获取CPU占用率
+get_cpu_usage
+
+cpu_cores=$(nproc)
+mem_info=$(free -b | awk 'NR==2{printf "%.2f/%.2f MB (%.2f%%)", $3/1024/1024, $2/1024/1024, $3*100/$2}')
+disk_info=$(df -h | awk '$NF=="/"{printf "%s/%s (%s)", $3, $2, $5}')
+country=$(curl -s ipinfo.io/country)
+city=$(curl -s ipinfo.io/city)
+isp_info=$(curl -s ipinfo.io/org)
 cpu_arch=$(uname -m)
 hostname=$(hostname)
 kernel_version=$(uname -r)
-
-isp_info=$(curl -s ipinfo.io/org)
-country=$(curl -s ipinfo.io/country)
-city=$(curl -s ipinfo.io/city)
-
-cpu_cores=$(nproc)
-cpu_usage_percent=$(top -bn1 | grep -E "^(%Cpu|CPU)" | awk '{print $2}')
-mem_info=$(free -m | awk 'NR==2{printf "%.2f/%.2f MB (%.2f%%)", $3/1024, $2/1024, $3*100/$2}')
-disk_info=$(df -h / | awk 'NR==2{printf "%s/%s (%s)", $3, $2, $5}')
-output=$(awk '/eth0/{print "总接收: " $2/1024/1024 " MB\n总发送: " $10/1024/1024 " MB"}' /proc/net/dev)
 congestion_algorithm=$(sysctl -n net.ipv4.tcp_congestion_control)
 queue_algorithm=$(sysctl -n net.core.default_qdisc)
+
+output=$(awk 'BEGIN { rx_total = 0; tx_total = 0 }
+    NR > 2 { rx_total += $2; tx_total += $10 }
+    END {
+        rx_units = "Bytes";
+        tx_units = "Bytes";
+        if (rx_total > 1024) { rx_total /= 1024; rx_units = "KB"; }
+        if (rx_total > 1024) { rx_total /= 1024; rx_units = "MB"; }
+        if (rx_total > 1024) { rx_total /= 1024; rx_units = "GB"; }
+
+        if (tx_total > 1024) { tx_total /= 1024; tx_units = "KB"; }
+        if (tx_total > 1024) { tx_total /= 1024; tx_units = "MB"; }
+        if (tx_total > 1024) { tx_total /= 1024; tx_units = "GB"; }
+
+        printf("总接收: %.2f %s\n总发送: %.2f %s\n", rx_total, rx_units, tx_total, tx_units);
+    }' /proc/net/dev)
+
 current_time=$(date "+%Y-%m-%d %I:%M %p")
 
-swap_info=$(free -m | awk 'NR==3{print $3 "MB/" $2 "MB (" $3/$2*100 "%)"}')
+swap_used=$(free -m | awk 'NR==3{print $3}')
+swap_total=$(free -m | awk 'NR==3{print $2}')
 
-runtime=$(uptime -p)
+if [ "$swap_total" -eq 0 ]; then
+    swap_percentage=0
+else
+    swap_percentage=$((swap_used * 100 / swap_total))
+fi
+
+swap_info="${swap_used}MB/${swap_total}MB (${swap_percentage}%)"
+
+runtime=$(cat /proc/uptime | awk -F. '{run_days=int($1 / 86400);run_hours=int(($1 % 86400) / 3600);run_minutes=int(($1 % 3600) / 60); if (run_days > 0) printf("%d天 ", run_days); if (run_hours > 0) printf("%d时 ", run_hours); printf("%d分\n", run_minutes)}')
 
 echo ""
 echo "系统信息查询"
@@ -106,7 +157,7 @@ echo "CPU架构: $cpu_arch"
 echo "CPU型号: $cpu_info"
 echo "CPU核心数: $cpu_cores"
 echo "------------------------"
-echo "CPU占用: $cpu_usage_percent"
+echo "CPU占用: $cpu_usage_percent%"
 echo "物理内存: $mem_info"
 echo "虚拟内存: $swap_info"
 echo "硬盘占用: $disk_info"
@@ -116,87 +167,109 @@ echo "------------------------"
 echo "网络拥堵算法: $congestion_algorithm $queue_algorithm"
 echo "------------------------"
 echo "公网IPv4地址: $ipv4_address"
-echo "公网IPv6地址: $ipv6_address"
+echo "公网IPv6地址: $ipv6_address"  # 显示IPv6地址
 echo "------------------------"
 echo "地理位置: $country $city"
 echo "系统时间: $current_time"
 echo "------------------------"
 echo "系统运行时长: $runtime"
-echo ""
+echo
 
-# 提示用户按任意键返回菜单
-read -n 1 -s -r -p "按任意键返回主菜单..."
-
-# 清屏返回主菜单
-clear
-# 这里需要添加返回主菜单的命令，例如：
-# HY.sh
+# 添加等待用户输入以确认是否退出
+read -p "按任意键退出..."
     ;;
 
   2)
-    clear
+clear
 
-    # Update system on Debian-based systems
+clear
+
+# 函数: 更新Debian系系统
+update_debian() {
     if [ -f "/etc/debian_version" ]; then
         apt update -y && DEBIAN_FRONTEND=noninteractive apt full-upgrade -y
     fi
+}
 
-    # Update system on Red Hat-based systems
+# 函数: 更新CentOS系系统
+update_centos() {
     if [ -f "/etc/redhat-release" ]; then
         yum -y update
     fi
+}
 
-    # Update system on Alpine Linux
-    if [ -f "/etc/alpine-release" ]; then
-        apk update && apk upgrade
+# 函数: 更新Ubuntu系统
+update_ubuntu() {
+    if [ -f "/etc/os-release" ]; then
+        source /etc/os-release
+        if [[ $ID == "ubuntu" ]]; then
+            apt update -y && DEBIAN_FRONTEND=noninteractive apt full-upgrade -y
+        fi
     fi
+}
 
+# 更新系统
+update_debian
+update_centos
+update_ubuntu
 
+# 退出前等待用户按下任意键
+read -n 1 -s -r -p "更新已完成。按任意键返回菜单..."
     ;;
 
   3)
     clear
-    clean_debian() {
-        apt autoremove --purge -y
-        apt clean -y
-        apt autoclean -y
-        apt remove --purge $(dpkg -l | awk '/^rc/ {print $2}') -y
-        journalctl --rotate
-        journalctl --vacuum-time=1s
-        journalctl --vacuum-size=50M
-        apt remove --purge $(dpkg -l | awk '/^ii linux-(image|headers)-[^ ]+/{print $2}' | grep -v $(uname -r | sed 's/-.*//') | xargs) -y
-    }
+# 函数: 清理Debian系统
+clean_debian() {
+    apt autoremove --purge -y
+    apt clean -y
+    apt autoclean -y
+    apt remove --purge $(dpkg -l | awk '/^rc/ {print $2}') -y
+    journalctl --rotate
+    journalctl --vacuum-time=1s
+    journalctl --vacuum-size=50M
+    apt remove --purge $(dpkg -l | awk '/^ii linux-(image|headers)-[^ ]+/{print $2}' | grep -v $(uname -r | sed 's/-.*//') | xargs) -y
+}
 
-    clean_redhat() {
-        yum autoremove -y
-        yum clean all
-        journalctl --rotate
-        journalctl --vacuum-time=1s
-        journalctl --vacuum-size=50M
-        yum remove $(rpm -q kernel | grep -v $(uname -r)) -y
-    }
+# 函数: 清理CentOS系统
+clean_centos() {
+    yum autoremove -y
+    yum clean all
+    journalctl --rotate
+    journalctl --vacuum-time=1s
+    journalctl --vacuum-size=50M
+    yum remove $(rpm -q kernel | grep -v $(uname -r)) -y
+}
 
-    clean_alpine() {
-        apk del --purge $(apk info --installed | awk '{print $1}' | grep -v $(apk info --available | awk '{print $1}'))
-        apk autoremove
-        apk cache clean
-        rm -rf /var/log/*
-        rm -rf /var/cache/apk/*
+# 函数: 清理Ubuntu系统
+clean_ubuntu() {
+    apt autoremove --purge -y
+    apt clean -y
+    apt autoclean -y
+    apt remove --purge $(dpkg -l | awk '/^rc/ {print $2}') -y
+    journalctl --rotate
+    journalctl --vacuum-time=1s
+    journalctl --vacuum-size=50M
+    apt remove --purge $(dpkg -l | awk '/^ii linux-(image|headers)-[^ ]+/{print $2}' | grep -v $(uname -r | sed 's/-.*//') | xargs) -y
+}
 
-    }
-
-    # Main script
-    if [ -f "/etc/debian_version" ]; then
-        # Debian-based systems
-        clean_debian
-    elif [ -f "/etc/redhat-release" ]; then
-        # Red Hat-based systems
-        clean_redhat
-    elif [ -f "/etc/alpine-release" ]; then
-        # Alpine Linux
-        clean_alpine
+# 清理系统
+if [ -f "/etc/debian_version" ]; then
+    # Debian系统
+    clean_debian
+elif [ -f "/etc/redhat-release" ]; then
+    # CentOS系统
+    clean_centos
+elif [ -f "/etc/os-release" ]; then
+    source /etc/os-release
+    if [[ $ID == "ubuntu" ]]; then
+        # Ubuntu系统
+        clean_ubuntu
     fi
+fi
 
+# 退出前等待用户按下任意键
+read -n 1 -s -r -p "更新已完成。按任意键返回菜单..."
     ;;   
         4)
             clear

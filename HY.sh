@@ -269,7 +269,7 @@ elif [ -f "/etc/os-release" ]; then
 fi
 
 # 退出前等待用户按下任意键
-read -n 1 -s -r -p "更新已完成。按任意键返回菜单..."
+read -n 1 -s -r -p "清理已完成。按任意键返回菜单..."
     ;;   
         4)
             clear
